@@ -5,7 +5,7 @@ using JobApplicationTracker.Services;
 namespace JobApplicationTracker.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     public class JobsController : ControllerBase
     {
         private readonly IJobService _jobService;

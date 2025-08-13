@@ -6,12 +6,10 @@ namespace JobApplicationTracker.Data
     public class SampleDataSeeder
     {
         private readonly IJobService _jobService;
-        private readonly IApplicationService _applicationService;
 
-        public SampleDataSeeder(IJobService jobService, IApplicationService applicationService)
+        public SampleDataSeeder(IJobService jobService)
         {
             _jobService = jobService;
-            _applicationService = applicationService;
         }
 
         public void Seed()
@@ -37,7 +35,7 @@ namespace JobApplicationTracker.Data
 
             foreach (var app in applications)
             {
-                _applicationService.ApplyToJobAsync(app).Wait();
+                _jobService.ApplyToJobAsync(app).Wait();
             }
         }
     }
