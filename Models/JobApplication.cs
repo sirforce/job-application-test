@@ -1,6 +1,6 @@
 namespace JobApplicationTracker.Models
 {
-    public class Application
+    public class JobApplication
     {
         public Guid ApplicationId { get; set; } = Guid.NewGuid();
         public Guid JobId { get; set; }

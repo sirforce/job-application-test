@@ -5,7 +5,7 @@ namespace JobApplicationTracker.Services
     public class JobService : IJobService
     {
         private readonly List<Job> _jobs = new();
-		private readonly List<Application> _applications = new();
+		private readonly List<JobApplication> _applications = new();
 
         public Task<Job> CreateJobAsync(Job job)
         {
@@ -24,7 +24,7 @@ namespace JobApplicationTracker.Services
             return Task.FromResult(job);
         }
         
-        public async Task<Application> ApplyToJobAsync(Application application)
+        public async Task<JobApplication> ApplyToJobAsync(JobApplication application)
         {
             var job = await GetJobByIdAsync(application.JobId);
             if (job == null)

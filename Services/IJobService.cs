@@ -7,6 +7,6 @@ namespace JobApplicationTracker.Services
         Task<Job> CreateJobAsync(Job job);
         Task<IEnumerable<Job>> GetJobsAsync();
         Task<Job?> GetJobByIdAsync(Guid jobId);
-        Task<Application> ApplyToJobAsync(Application application);
+        Task<JobApplication> ApplyToJobAsync(JobApplication application);
     }
 }

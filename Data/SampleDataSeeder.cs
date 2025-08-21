@@ -26,11 +26,11 @@ namespace JobApplicationTracker.Data
                 _jobService.CreateJobAsync(job).Wait();
             }
 
-            var applications = new List<Application>
+            var applications = new List<JobApplication>
             {
-                new Application { JobId = jobs[0].JobId, CandidateName = "Alice Smith", Email = "alice@example.com" },
-                new Application { JobId = jobs[0].JobId, CandidateName = "Bob Jones", Email = "bob@example.com" },
-                new Application { JobId = jobs[1].JobId, CandidateName = "Charlie Brown", Email = "charlie@example.com" }
+                new JobApplication { JobId = jobs[0].JobId, CandidateName = "Alice Smith", Email = "alice@example.com" },
+                new JobApplication { JobId = jobs[0].JobId, CandidateName = "Bob Jones", Email = "bob@example.com" },
+                new JobApplication { JobId = jobs[1].JobId, CandidateName = "Charlie Brown", Email = "charlie@example.com" }
             };
 
             foreach (var app in applications)
