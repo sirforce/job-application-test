@@ -6,6 +6,16 @@ namespace JobApplicationTracker.Services
     {
         private readonly List<Job> _jobs = new();
 		private readonly List<JobApplication> _applications = new();
+        public IEnumerable<Job> GetJobs() => _jobs;
+
+        public bool Exists(Guid jobId) => _jobs.Any(j => j.JobId == jobId);
+
+        public Job Add(Job job)
+        {
+            if (job.JobId == Guid.Empty) job.JobId = Guid.NewGuid();
+            _jobs.Add(job);
+            return job;
+        }
 
         public Task<Job> CreateJobAsync(Job job)
         {
@@ -33,5 +43,11 @@ namespace JobApplicationTracker.Services
             _applications.Add(application);
             return application;
         }
+        public IEnumerable<JobApplication> GetApplicationsByJobId(Guid jobId)
+        {
+            return _applications.Where(a => a.JobId == jobId).ToList();
+        }
+
+
     }
 }

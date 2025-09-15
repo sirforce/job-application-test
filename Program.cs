@@ -5,6 +5,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddSingleton<IJobService, JobService>();
+builder.Services.AddSingleton<IApplicationService, ApplicationService>();
 builder.Services.AddSingleton<SampleDataSeeder>();
 
 var app = builder.Build();

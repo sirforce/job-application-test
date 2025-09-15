@@ -8,5 +8,6 @@ namespace JobApplicationTracker.Services
         Task<IEnumerable<Job>> GetJobsAsync();
         Task<Job?> GetJobByIdAsync(Guid jobId);
         Task<JobApplication> ApplyToJobAsync(JobApplication application);
+        IEnumerable<JobApplication> GetApplicationsByJobId(Guid jobId);
     }
 }
