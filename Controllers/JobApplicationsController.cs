@@ -19,7 +19,7 @@ namespace JobApplicationTracker.Controllers
             _jobService = jobService;
         }
 
-        // DTO kept local to avoid namespace mismatches.
+        // DTO kept local to avoid namespace mismatches
         public class CreateJobApplicationRequest
         {
             public Guid JobId { get; init; }
