@@ -15,35 +15,53 @@ namespace JobApplicationTracker.Controllers
 
         public JobApplicationsController(IApplicationService applicationService, IJobService jobService)
         {
-            _applicationService = applicationService;
-            _jobService = jobService;
+            _applicationService = applicationService ?? throw new ArgumentNullException(nameof(applicationService));
+            _jobService = jobService ?? throw new ArgumentNullException(nameof(jobService));
         }
 
-        // DTO kept local to avoid namespace mismatches
+        // DTO kept local until proper DTOs structure is set up
         public class CreateJobApplicationRequest
         {
             public Guid JobId { get; init; }
             public required string ApplicantName { get; init; } = string.Empty;
             public required string ApplicantEmail { get; init; }
+            public string? CoverLetter { get; init; }
         }
 
         /// <summary>
         /// Returns all job applications for a given job.
         /// GET /jobapplications/job/{jobId}
         /// </summary>
+        /// <param name="jobId">The ID of the job to get applications for</param>
+        /// <param name="cancellationToken">Cancellation token</param>
         [HttpGet("job/{jobId:guid}")]
-        public IActionResult GetApplicationsForJob(Guid jobId)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<IEnumerable<Application>>> GetApplicationsForJob(
+            Guid jobId, 
+            CancellationToken cancellationToken = default)
         {
-            var apps = _applicationService.GetByJobId(jobId);
-            return Ok(apps);
+            var job = await _jobService.GetJobByIdAsync(jobId, cancellationToken);
+            if (job == null)
+                return NotFound($"Job with ID {jobId} not found.");
+
+            var applications = await _applicationService.GetByJobIdAsync(jobId, cancellationToken);
+            return Ok(applications);
         }
 
         /// <summary>
         /// Creates a job application and ties it to a job.
         /// POST /jobapplications
         /// </summary>
+        /// <param name="request">The application details</param>
+        /// <param name="cancellationToken">Cancellation token</param>
         [HttpPost]
-        public IActionResult CreateApplication([FromBody] CreateJobApplicationRequest request)
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<Application>> CreateApplication(
+            [FromBody] CreateJobApplicationRequest request,
+            CancellationToken cancellationToken = default)
         {
             if (request is null)
                 return BadRequest("Request body is required.");
@@ -54,14 +72,23 @@ namespace JobApplicationTracker.Controllers
             if (string.IsNullOrWhiteSpace(request.ApplicantName))
                 return BadRequest("ApplicantName is required.");
 
-            var created = _applicationService.Add(new Application
+            if (string.IsNullOrWhiteSpace(request.ApplicantEmail))
+                return BadRequest("ApplicantEmail is required.");
+
+            // Verify the job exists
+            var job = await _jobService.GetJobByIdAsync(request.JobId, cancellationToken);
+            if (job == null)
+                return NotFound($"Job with ID {request.JobId} not found.");
+
+            var application = new Application
             {
                 JobId = request.JobId,
-                ApplicantName = request.ApplicantName,
-                ApplicantEmail = request.ApplicantEmail
-            });
+                ApplicantName = request.ApplicantName.Trim(),
+                ApplicantEmail = request.ApplicantEmail.Trim()
+            };
 
-            // Return 201 with a Location header pointing to the job's applications list
+            var created = _applicationService.Add(application);
+
             return CreatedAtAction(
                 nameof(GetApplicationsForJob),
                 new { jobId = created.JobId },

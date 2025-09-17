@@ -14,7 +14,7 @@ namespace JobApplicationTracker.Data
             _jobService = jobService;
         }
 
-        public void Seed()
+        public async Task SeedAsync(CancellationToken cancellationToken = default)
         {
             // 1) Create jobs
             var jobsToCreate = new List<Job>
@@ -35,8 +35,8 @@ namespace JobApplicationTracker.Data
             var createdJobs = new List<Job>();
             foreach (var job in jobsToCreate)
             {
-                // capture the created job so we have the actual JobId
-                var created = _jobService.CreateJobAsync(job).GetAwaiter().GetResult();
+                cancellationToken.ThrowIfCancellationRequested();
+                var created = await _jobService.CreateJobAsync(job, cancellationToken);
                 createdJobs.Add(created);
             }
 
@@ -58,12 +58,16 @@ namespace JobApplicationTracker.Data
                 return (name, email);
             }
 
-            // 3) Seed a random number of applications per job (0..50)
+            // 3) Seed a random number of applications per job (0..99)
             foreach (var job in createdJobs)
             {
-                int applicationsPerJob = random.Next(100); // 0 to 50 inclusive
+                cancellationToken.ThrowIfCancellationRequested();
+
+                int applicationsPerJob = random.Next(100); // 0 to 99 inclusive
                 for (int i = 0; i < applicationsPerJob; i++)
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
+
                     var (name, email) = GenerateCandidate();
 
                     var app = new JobApplication
@@ -73,9 +77,15 @@ namespace JobApplicationTracker.Data
                         Email         = email
                     };
 
-                    _jobService.ApplyToJobAsync(app).GetAwaiter().GetResult();
+                    await _jobService.ApplyToJobAsync(app, cancellationToken);
                 }
             }
+        }
+
+        // Keep synchronous version for backward compatibility
+        public void Seed()
+        {
+            SeedAsync(CancellationToken.None).GetAwaiter().GetResult();
         }
     }
 }
